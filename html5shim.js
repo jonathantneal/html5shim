@@ -1,3 +1,4 @@
+// Dual licensed under the MIT or GPL Version 2 licenses
 // HTML5 Shim v3.0 @jon_neal @afarkas @rem
 (function (win, doc) {
 	// replaces an element with a namespace-shimmed clone (eg. header element becomes shim:header element)
@@ -69,13 +70,13 @@
 		return cssTextSplit.join('{');
 	}
 
-	// html5
-	win.html5 = {
-		// returns whether the browser supports fictional elements
-		supportsXElement: (function (a) { a.innerHTML = '<x-element></x-element>'; return a.childNodes.length === 1; })(doc.createElement('a')),
+	// returns whether the browser supports fictional elements
+	var supportsXElement = (function (a) { a.innerHTML = '<x-element></x-element>'; return a.childNodes.length === 1; })(doc.createElement('a'));
 
+	// introduces html5 global so that nested iframes can make use of it
+	win.html5 = {
 		// a list of html5 elements
-		elements: 'abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup mark meter nav output progress section subline summary time video'.split(' '),
+		elements: 'abbr article aside audio bdi canvas data datalist details figcaption figure footer header hgroup mark meter nav output progress section summary time video'.split(' '),
 
 		// the shim function
 		// more elements can be added and shimmed with the following code: html5.elements.push('element-name'); shimDocument(document);
@@ -83,7 +84,7 @@
 			scopeDocument = scopeDocument || doc;
 
 			// test for scenarios where shimming is unnecessary
-			if (win.html5.supportsXElement || !scopeDocument || scopeDocument.documentShimmed) return; scopeDocument.documentShimmed = true;
+			if (supportsXElement || !scopeDocument || scopeDocument.documentShimmed) return; scopeDocument.documentShimmed = true;
 
 			// set local variables
 			var
@@ -124,7 +125,7 @@
 		// the print shim function
 		printShimDocument: function (scopeDocument) {
 			// test for scenarios where shimming is unnecessary or unavailable
-			if (win.html5.supportsXElement || !scopeDocument.namespaces) return;
+			if (supportsXElement || !scopeDocument.namespaces) return;
 
 			// add the shim namespace
 			if (!scopeDocument.namespaces.shim) scopeDocument.namespaces.add('shim');
@@ -156,7 +157,7 @@
 		// the print unshim function
 		unPrintShimDocument: function (scopeDocument) {
 			// test for scenarios where shimming is unnecessary
-			if (win.html5.supportsXElement || !scopeDocument.namespaces) return;
+			if (supportsXElement || !scopeDocument.namespaces) return;
 
 			// set local variables
 			var
@@ -185,7 +186,7 @@
 	win.html5.shimDocument(doc);
 
 	// set up print shimming the document
-	if (!win.html5.supportsXElement) {
+	if (!supportsXElement) {
 		win.onbeforeprint = function () {
 			// set local variables
 			var
