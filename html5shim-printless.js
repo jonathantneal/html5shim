@@ -1,4 +1,4 @@
-/*! HTML5 Shim v3.0 | @jon_neal @afarkas @rem | MIT/GPL2 Licensed */
+/*! HTML5 Shim v3 | @jon_neal @afarkas @rem | MIT/GPL2 Licensed */
 (function (win, doc) {
 	// feature detection: whether the browser supports unknown elements
 	var supportsUnknownElements = (function (a) { a.innerHTML = '<x-element></x-element>'; return a.childNodes.length === 1; })(doc.createElement('a'));

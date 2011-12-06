@@ -67,6 +67,11 @@
 	function namespaceShimElement(element) {
 		var elementClone = element.document.createElement('shim:' + element.nodeName);
 		while (element.childNodes.length) elementClone.appendChild(element.childNodes[0]);
+		for (var a = element.attributes, l = a.length, i = 0; i < l; ++i) {
+			if (a[i].specified) {
+				elementClone.setAttribute(a[i].nodeName, a[i].nodeValue);
+			}
+		}
 		elementClone.style.cssText = element.style.cssText;
 		element.parentNode.replaceChild(elementClone, element);
 		elementClone.originalElement = element;
@@ -97,13 +102,11 @@
 			// get style sheet
 			styleSheet = styleSheetList[i];
 
-			// skip a disabled style sheet
-			if (styleSheet.disabled) {
-				continue;
-			}
-
 			// get style sheet media type
 			styleSheetMediaType = styleSheet.media || mediaType;
+
+			// skip a disabled or non-print style sheet
+			if (styleSheet.disabled || !/print|all/.test(styleSheetMediaType)) continue;
 
 			// push style sheet css text
 			cssTextArr.push(getStyleSheetListCssText(styleSheet.imports, styleSheetMediaType), styleSheet.cssText);
@@ -117,7 +120,7 @@
 	function shimCssText (cssText) {
 		// set local variables
 		var
-		elementsRegExp = new RegExp('(^|[^\\w])(' + win.html5.elements.join('|') + ')([^\\w]|$)', 'gi'),
+		elementsRegExp = new RegExp('(^|[\\s\\,\\{\\}])(' + win.html5.elements.join('|') + ')', 'gi'),
 		cssTextSplit = cssText.split('{'),
 		cssTextSplitLength = cssTextSplit.length,
 		i = -1;
@@ -125,7 +128,7 @@
 		// shim css text
 		while (++i < cssTextSplitLength) {
 			cssTextSplit[i] = cssTextSplit[i].split('}');
-			cssTextSplit[i][cssTextSplit[i].length - 1] = cssTextSplit[i][cssTextSplit[i].length - 1].replace(elementsRegExp, '$1shim\\:$2$3');
+			cssTextSplit[i][cssTextSplit[i].length - 1] = cssTextSplit[i][cssTextSplit[i].length - 1].replace(elementsRegExp, '$1shim\\:$2');
 			cssTextSplit[i] = cssTextSplit[i].join('}');
 		}
 
@@ -148,7 +151,14 @@
 		nodeList = scopeDocument.getElementsByTagName('*'),
 		nodeListLength = nodeList.length,
 		element,
-		shimmedCSS = shimCssText(getStyleSheetListCssText(scopeDocument.styleSheets));
+		shimmedCSS = shimCssText(getStyleSheetListCssText((function (s, l) {
+			var arr = [], i;
+			for (i = s.length; i; arr.unshift(s[--i]));
+			for (i = l.length; i; arr.unshift(l[--i]));
+			arr.sort(function sortfunction(a, b){ return (a.sourceIndex - b.sourceIndex) });
+			for (i = arr.length; i; arr[--i] = arr[i].styleSheet);
+			return arr;
+		})(scopeDocument.getElementsByTagName('style'), scopeDocument.getElementsByTagName('link'))));
 
 		// loop through document elements
 		while (++i < nodeListLength) {
@@ -162,7 +172,7 @@
 		}
 
 		// set new shimmed css text
-		scopeDocument.appendChild(win.html5._shimmedStyles = scopeDocument.createElement('style')).styleSheet.cssText = shimmedCSS;
+		scopeDocument.appendChild(scopeDocument._shimmedStyleSheet = scopeDocument.createElement('style')).styleSheet.cssText = shimmedCSS;
 	}
 
 	// the print unshim function
@@ -189,7 +199,7 @@
 		}
 
 		// cut new shimmed css text
-		if (win.html5._shimmedStyles) win.html5._shimmedStyles.parentNode.removeChild(win.html5._shimmedStyles);
+		if (scopeDocument._shimmedStyleSheet) scopeDocument._shimmedStyleSheet.parentNode.removeChild(scopeDocument._shimmedStyleSheet);
 	}
 
 	// set up print shimming the document
