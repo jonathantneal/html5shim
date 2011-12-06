@@ -61,7 +61,7 @@
 	// shim the document
 	win.html5.shimDocument(doc);
 
-	// ie print protector
+	// ie print shiv
 
 	// replaces an element with a namespace-shimmed clone (eg. header element becomes shim:header element)
 	function namespaceShimElement(element) {
@@ -136,19 +136,19 @@
 		return cssTextSplit.join('{');
 	}
 
-	// the print shim function
-	function printShimDocument (scopeDocument) {
+	// the before print function
+	win.onbeforeprint = function () {
 		// test for scenarios where shimming is unnecessary or unavailable
-		if (win.html5.supportsXElement || !scopeDocument.namespaces) return;
+		if (win.html5.supportsXElement || !doc.namespaces) return;
 
 		// add the shim namespace
-		if (!scopeDocument.namespaces.shim) scopeDocument.namespaces.add('shim');
+		if (!doc.namespaces.shim) doc.namespaces.add('shim');
 
 		// set local variables
 		var
 		i = -1,
 		elementsRegExp = new RegExp('^(' + win.html5.elements.join('|') + ')$', 'i'),
-		nodeList = scopeDocument.getElementsByTagName('*'),
+		nodeList = doc.getElementsByTagName('*'),
 		nodeListLength = nodeList.length,
 		element,
 		shimmedCSS = shimCssText(getStyleSheetListCssText((function (s, l) {
@@ -158,7 +158,7 @@
 			arr.sort(function sortfunction(a, b){ return (a.sourceIndex - b.sourceIndex) });
 			for (i = arr.length; i; arr[--i] = arr[i].styleSheet);
 			return arr;
-		})(scopeDocument.getElementsByTagName('style'), scopeDocument.getElementsByTagName('link'))));
+		})(doc.getElementsByTagName('style'), doc.getElementsByTagName('link'))));
 
 		// loop through document elements
 		while (++i < nodeListLength) {
@@ -172,18 +172,18 @@
 		}
 
 		// set new shimmed css text
-		scopeDocument.appendChild(scopeDocument._shimmedStyleSheet = scopeDocument.createElement('style')).styleSheet.cssText = shimmedCSS;
+		doc.appendChild(doc._shimmedStyleSheet = doc.createElement('style')).styleSheet.cssText = shimmedCSS;
 	}
 
-	// the print unshim function
-	function unPrintShimDocument (scopeDocument) {
+	// the after print function
+	win.onafterprint = function() {
 		// test for scenarios where shimming is unnecessary
-		if (win.html5.supportsXElement || !scopeDocument.namespaces) return;
+		if (win.html5.supportsXElement || !doc.namespaces) return;
 
 		// set local variables
 		var
 		i = -1,
-		nodeList = scopeDocument.getElementsByTagName('*'),
+		nodeList = doc.getElementsByTagName('*'),
 		nodeListLength = nodeList.length,
 		element;
 
@@ -199,44 +199,6 @@
 		}
 
 		// cut new shimmed css text
-		if (scopeDocument._shimmedStyleSheet) scopeDocument._shimmedStyleSheet.parentNode.removeChild(scopeDocument._shimmedStyleSheet);
-	}
-
-	// set up print shimming the document
-	if (!supportsUnknownElements) {
-		win.onbeforeprint = function () {
-			// set local variables
-			var
-			i = -1,
-			frame;
-
-			// printshim any shimable frame documents
-			while ((frame = win.frames[++i])) {
-				try {
-					if (!frame.html5) printShimDocument(frame.document);
-				}
-				catch (err) {}
-			}
-
-			// printshim the current document
-			printShimDocument(doc);
-		};
-		win.onafterprint = function () {
-			// set local variables
-			var
-			i = -1,
-			frame;
-
-			// unprintshim any shimable frame documents
-			while ((frame = win.frames[++i])) {
-				try {
-					if (!frame.html5) unPrintShimDocument(frame.document);
-				}
-				catch (err) {}
-			}
-
-			// unprintshim the current document
-			unPrintShimDocument(doc);
-		};
+		if (doc._shimmedStyleSheet) doc._shimmedStyleSheet.parentNode.removeChild(doc._shimmedStyleSheet);
 	}
 })(this, document);
