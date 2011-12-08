@@ -17,7 +17,10 @@
 			scopeDocument = scopeDocument || doc;
 
 			// test if the document has already been shimmed
-			if (scopeDocument.documentShimmed) return; scopeDocument.documentShimmed = true;
+			if (scopeDocument.documentShimmed) {
+				return;
+			}
+			scopeDocument.documentShimmed = true;
 
 			// set local variables
 			var
@@ -49,12 +52,14 @@
 			}
 
 			// shim for default html5 styles
-			if (!supportsHtml5Styles && documentHead) documentHead.insertBefore(documentCreateElement('style'), documentHead.firstChild).styleSheet.cssText = [
-				'article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block}', // Corrects block display not defined in IE6/7/8/9
-				'canvas,video{display:inline-block;*display:inline;*zoom:1}', // Corrects inline-block display not defined in IE6/7/8/9
-				'[hidden]{display:none}', // Corrects styling for 'hidden' attribute not present in IE7/8/9
-				'mark{background:#FF0;color:#000}' // Addresses styling not present in IE6/7/8/9
-			].join('');
+			if (!supportsHtml5Styles && documentHead) {
+				documentHead.insertBefore(documentCreateElement('style'), documentHead.firstChild).styleSheet.cssText = [
+					'article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block}', // Corrects block display not defined in IE6/7/8/9
+					'canvas,video{display:inline-block;*display:inline;*zoom:1}', // Corrects inline-block display not defined in IE6/7/8/9
+					'[hidden]{display:none}', // Corrects styling for 'hidden' attribute not present in IE7/8/9
+					'mark{background:#FF0;color:#000}' // Addresses styling not present in IE6/7/8/9
+				].join('');
+			}
 		}
 	};
 

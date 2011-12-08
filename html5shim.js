@@ -17,7 +17,10 @@
 			scopeDocument = scopeDocument || doc;
 
 			// test if the document has already been shimmed
-			if (scopeDocument.documentShimmed) return; scopeDocument.documentShimmed = true;
+			if (scopeDocument.documentShimmed) {
+				return;
+			}
+			scopeDocument.documentShimmed = true;
 
 			// set local variables
 			var
@@ -49,12 +52,14 @@
 			}
 
 			// shim for default html5 styles
-			if (!supportsHtml5Styles && documentHead) documentHead.insertBefore(documentCreateElement('style'), documentHead.firstChild).styleSheet.cssText = [
-				'article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block}', // Corrects block display not defined in IE6/7/8/9
-				'canvas,video{display:inline-block;*display:inline;*zoom:1}', // Corrects inline-block display not defined in IE6/7/8/9
-				'[hidden]{display:none}', // Corrects styling for 'hidden' attribute not present in IE7/8/9
-				'mark{background:#FF0;color:#000}' // Addresses styling not present in IE6/7/8/9
-			].join('');
+			if (!supportsHtml5Styles && documentHead) {
+				documentHead.insertBefore(documentCreateElement('style'), documentHead.firstChild).styleSheet.cssText = [
+					'article,aside,details,figcaption,figure,footer,header,hgroup,nav,section{display:block}', // Corrects block display not defined in IE6/7/8/9
+					'canvas,video{display:inline-block;*display:inline;*zoom:1}', // Corrects inline-block display not defined in IE6/7/8/9
+					'[hidden]{display:none}', // Corrects styling for 'hidden' attribute not present in IE7/8/9
+					'mark{background:#FF0;color:#000}' // Addresses styling not present in IE6/7/8/9
+				].join('');
+			}
 		}
 	};
 
@@ -66,7 +71,9 @@
 	// replaces an element with a namespace-shimmed clone (eg. header element becomes shim:header element)
 	function namespaceShimElement(element) {
 		var elementClone = element.document.createElement('shim:' + element.nodeName);
-		while (element.childNodes.length) elementClone.appendChild(element.childNodes[0]);
+		while (element.childNodes.length) {
+			elementClone.appendChild(element.childNodes[0]);
+		}
 		for (var a = element.attributes, l = a.length, i = 0; i < l; ++i) {
 			if (a[i].specified) {
 				elementClone.setAttribute(a[i].nodeName, a[i].nodeValue);
@@ -80,7 +87,9 @@
 	// restores an element from a namespace-shimmed clone (eg. shim:header element becomes header element)
 	function unNamespaceShimElement(element) {
 		var originalElement = element.originalElement;
-		while (element.childNodes.length) originalElement.appendChild(element.childNodes[0]);
+		while (element.childNodes.length) {
+			originalElement.appendChild(element.childNodes[0]);
+		}
 		element.parentNode.replaceChild(originalElement, element);
 	}
 
@@ -106,7 +115,9 @@
 			styleSheetMediaType = styleSheet.media || mediaType;
 
 			// skip a disabled or non-print style sheet
-			if (styleSheet.disabled || !/print|all/.test(styleSheetMediaType)) continue;
+			if (styleSheet.disabled || !/print|all/.test(styleSheetMediaType)) {
+				continue;
+			}
 
 			// push style sheet css text
 			cssTextArr.push(getStyleSheetListCssText(styleSheet.imports, styleSheetMediaType), styleSheet.cssText);
@@ -139,10 +150,14 @@
 	// the before print function
 	win.onbeforeprint = function () {
 		// test for scenarios where shimming is unnecessary or unavailable
-		if (win.html5.supportsXElement || !doc.namespaces) return;
+		if (win.html5.supportsXElement || !doc.namespaces) {
+			return;
+		}
 
 		// add the shim namespace
-		if (!doc.namespaces.shim) doc.namespaces.add('shim');
+		if (!doc.namespaces.shim) {
+			doc.namespaces.add('shim');
+		}
 
 		// set local variables
 		var
@@ -152,11 +167,21 @@
 		nodeListLength = nodeList.length,
 		element,
 		shimmedCSS = shimCssText(getStyleSheetListCssText((function (s, l) {
-			var arr = [], i;
-			for (i = s.length; i; arr.unshift(s[--i]));
-			for (i = l.length; i; arr.unshift(l[--i]));
-			arr.sort(function sortfunction(a, b){ return (a.sourceIndex - b.sourceIndex) });
-			for (i = arr.length; i; arr[--i] = arr[i].styleSheet);
+			var arr = [], i = s.length;
+			while (i) {
+				arr.unshift(s[--i]);
+			}
+			i = s.length;
+			while (i) {
+				arr.unshift(l[--i]);
+			}
+			arr.sort(function (a, b) {
+				return (a.sourceIndex - b.sourceIndex);
+			});
+			i = arr.length;
+			while (i) {
+				arr[--i] = arr[i].styleSheet;
+			}
 			return arr;
 		})(doc.getElementsByTagName('style'), doc.getElementsByTagName('link'))));
 
@@ -173,12 +198,14 @@
 
 		// set new shimmed css text
 		doc.appendChild(doc._shimmedStyleSheet = doc.createElement('style')).styleSheet.cssText = shimmedCSS;
-	}
+	};
 
 	// the after print function
 	win.onafterprint = function() {
 		// test for scenarios where shimming is unnecessary
-		if (win.html5.supportsXElement || !doc.namespaces) return;
+		if (win.html5.supportsXElement || !doc.namespaces) {
+			return;
+		}
 
 		// set local variables
 		var
@@ -199,6 +226,8 @@
 		}
 
 		// cut new shimmed css text
-		if (doc._shimmedStyleSheet) doc._shimmedStyleSheet.parentNode.removeChild(doc._shimmedStyleSheet);
-	}
+		if (doc._shimmedStyleSheet) {
+			doc._shimmedStyleSheet.parentNode.removeChild(doc._shimmedStyleSheet);
+		}
+	};
 })(this, document);
