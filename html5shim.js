@@ -70,7 +70,13 @@
 
 	// replaces an element with a namespace-shimmed clone (eg. header element becomes shim:header element)
 	function namespaceShimElement(element) {
-		var elementClone = element.document.createElement('shim:' + element.nodeName);
+		if (document.documentMode && document.documentMode > 7) {
+			var elementClone = element.document.createElement('font');
+			elementClone.setAttribute('data-html5shiv', element.nodeName.toLowerCase());
+		}
+		else {
+			var elementClone = element.document.createElement('shim:' + element.nodeName);
+		}
 		while (element.childNodes.length) {
 			elementClone.appendChild(element.childNodes[0]);
 		}
@@ -139,7 +145,12 @@
 		// shim css text
 		while (++i < cssTextSplitLength) {
 			cssTextSplit[i] = cssTextSplit[i].split('}');
-			cssTextSplit[i][cssTextSplit[i].length - 1] = cssTextSplit[i][cssTextSplit[i].length - 1].replace(elementsRegExp, '$1shim\\:$2');
+			if (document.documentMode && document.documentMode > 7) {
+				cssTextSplit[i][cssTextSplit[i].length - 1] = cssTextSplit[i][cssTextSplit[i].length - 1].replace(elementsRegExp, '$1font[data-html5shiv="$2"]');
+			}
+			else {
+				cssTextSplit[i][cssTextSplit[i].length - 1] = cssTextSplit[i][cssTextSplit[i].length - 1].replace(elementsRegExp, '$1shim\\:$2');
+			}
 			cssTextSplit[i] = cssTextSplit[i].join('}');
 		}
 
@@ -166,12 +177,13 @@
 		nodeList = doc.getElementsByTagName('*'),
 		nodeListLength = nodeList.length,
 		element,
+		// sorts style and link files and returns their stylesheets
 		shimmedCSS = shimCssText(getStyleSheetListCssText((function (s, l) {
 			var arr = [], i = s.length;
 			while (i) {
 				arr.unshift(s[--i]);
 			}
-			i = s.length;
+			i = l.length;
 			while (i) {
 				arr.unshift(l[--i]);
 			}
