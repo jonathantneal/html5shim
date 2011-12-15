@@ -8,11 +8,11 @@
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<section>This control is in a green box <mark>with these words highlighted</mark>.</section>
+		<section>This sentence is in a green box <mark>with these words highlighted</mark>.</section>
 		<script>
 		YUI().use('node', function(Y) {
 			var yDiv = Y.Node.create('<div/>');
-			yDiv.setContent('<section>This YUI 3.3.0 experiment is in a green box <mark>with these words highlighted</mark>?</section>');
+			yDiv.setContent('<section>This YUI 3.3.0 sentence is in a green box <mark>with these words highlighted</mark>?</section>');
 			Y.one(document.body).append(yDiv);
 		});
 		</script>
