@@ -70,7 +70,7 @@
 
 	// replaces an element with a namespace-shimmed clone (eg. header element becomes shim:header element)
 	function namespaceShimElement(element) {
-		if (document.documentMode && document.documentMode > 7) {
+		if (doc.documentMode && doc.documentMode > 7) {
 			var elementClone = element.document.createElement('font');
 			elementClone.setAttribute('data-html5shiv', element.nodeName.toLowerCase());
 		}
@@ -145,7 +145,7 @@
 		// shim css text
 		while (++i < cssTextSplitLength) {
 			cssTextSplit[i] = cssTextSplit[i].split('}');
-			if (document.documentMode && document.documentMode > 7) {
+			if (doc.documentMode && doc.documentMode > 7) {
 				cssTextSplit[i][cssTextSplit[i].length - 1] = cssTextSplit[i][cssTextSplit[i].length - 1].replace(elementsRegExp, '$1font[data-html5shiv="$2"]');
 			}
 			else {
